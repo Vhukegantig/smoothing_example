@@ -63,14 +63,17 @@ int updateMean() {
  */
 void updateOled(int m) {
   u8g.setFont(u8g_font_unifont);
+  
+  // Shift all readings one step to the left to make space for the new reading
+    
+    
+  // Store the latest mean value in the last position
+    
+  // Prepp draw
   u8g.firstPage();
   do {
-    // Shift all readings one step to the left to make space for the new reading
-    
-    
-    // Store the latest mean value in the last position
-    
 
+ 
     // Plot the values on the OLED display
     
 
