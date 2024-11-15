@@ -67,7 +67,7 @@ void updateOled(int m) {
   // Shift all readings one step to the left to make space for the new reading
     
     
-  // Store the latest mean value in the last position
+  // Store the latest mean value in the last position (and mapp value to # pixels)
     
   // Prepp draw
   u8g.firstPage();
