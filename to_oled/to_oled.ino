@@ -5,27 +5,31 @@
 U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);
 
 // Declare pins
-const int ldrPin = A0;             // Pin for LDR sensor; no pinMode needed in setup
+const int ldrPin = A0;  // Pin for LDR sensor; no pinMode needed in setup
 
-// Declare Global Constants and Variables
-const int length = 3;             // Number of values to store for averaging
+// Declare Global Constants and Variables for circular register
+const int length = 10;             // Number of values to store for averaging
 int lastReadings[length] = { 0 };  // Array to store recent sensor values
 int currentIndex = 0;              // Tracks the index for the next reading
-int sum = 0;                       // Sum of the current readings to quickly compute mean
 
-int allReadings[124] = { 0 };      // Array to store data for the OLED display
+// Declare Global Constants and Variables for shifting register
+const int oledLength = 128;
+int allReadings[oledLength] = { 0 };  // Array to store data for the OLED display
 
 void setup() {
-  Serial.begin(9600);              // Initialize Serial Monitor
+  Serial.begin(9600);  // Initialize Serial Monitor
 }
 
 void loop() {
-  int raw = analogRead(ldrPin);    // Read the sensor value
-  int mean = updateMean();         // Calculate the mean of the last readings
+  int raw = analogRead(ldrPin);  // Read the sensor value
 
-  updateOled(mean);                // Update OLED with the mean value
+  int mean = updateMean(raw);  // Calculate the mean of the last readings
 
-  Serial.println(String(mean) + "   " + String(raw));  // Print the mean and raw reading
+  updateOled(mean);  // Update OLED with the mean value
+
+  Serial.print(mean); // Print the mean and raw reading
+  Serial.print("   ");
+  Serial.println(raw);  
 }
 
 /**
@@ -37,16 +41,20 @@ void loop() {
  * keeps a running total of the current values in the array, allowing us to 
  * efficiently compute the mean without re-summing all elements each time.
  */
-int updateMean() {
-  // Subtract the oldest reading from the sum
-  sum -= lastReadings[currentIndex];
+int updateMean(int r) {
 
-  // Read the new sensor value and update the array and sum
-  lastReadings[currentIndex] = analogRead(ldrPin);
-  sum += lastReadings[currentIndex];
+  // Update the array with the newest reading 
+  lastReadings[currentIndex] = r;
 
   // Move to the next index in a circular manner
   currentIndex = (currentIndex + 1) % length;
+
+  // Sum last 10 readings readings
+  int sum = 0;
+
+  for (int i = 0; i < length; i++) {
+    sum = sum + lastReadings[i];
+  }
 
   // Calculate and return the mean value
   return sum / length;
@@ -63,19 +71,19 @@ int updateMean() {
  */
 void updateOled(int m) {
   u8g.setFont(u8g_font_unifont);
-  
+
   // Shift all readings one step to the left to make space for the new reading
-    
-    
+
+
   // Store the latest mean value in the last position (and mapp value to # pixels)
-    
-  // Prepp draw
+
+  // Picture loop
   u8g.firstPage();
   do {
 
- 
+
     // Plot the values on the OLED display
-    
+
 
   } while (u8g.nextPage());
 }
